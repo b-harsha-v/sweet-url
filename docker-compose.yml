@@ -1,6 +1,19 @@
 version: '3.8'
 
 services:
+  web:
+    build: .
+    container_name: sweet_url_web
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_started
+
   db:
     image: postgres:15-alpine
     container_name: sweet_url_db
