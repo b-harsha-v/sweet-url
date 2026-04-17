@@ -92,8 +92,11 @@ async def shorten_url(request: URLRequest, db: AsyncSession = Depends(get_db)):
     # Warm the cache
     await cache.set(short_alias, request.long_url, ex=cache_ttl)
     
+    # Grab the base URL from the environment, but default to localhost for local testing
+    base_url = os.getenv("BASE_URL", "http://localhost:8000")
+    
     return {
-        "short_url": f"http://localhost:8000/{short_alias}",
+        "short_url": f"{base_url}/{short_alias}",
         "original_url": request.long_url,
         "expires_at": expires_at
     }
