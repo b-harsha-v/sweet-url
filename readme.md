@@ -58,8 +58,6 @@ cd sweet-url
 
 ## Local Setup
 ```bash
-git clone sweet-url
-cd sweet-url
 docker compose up --build
 ```
 
