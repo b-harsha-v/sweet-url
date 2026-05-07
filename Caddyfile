@@ -1,0 +1,3 @@
+sweet-url.duckdns.org {
+    reverse_proxy web:8000
+}
