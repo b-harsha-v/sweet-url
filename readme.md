@@ -11,6 +11,7 @@ http://13.49.49.151:8000/
 
 - URL shortening with unique aliases
 - Custom alias support
+- QR code generation for shortened URLs
 - Redis caching for fast redirects
 - Expiring URLs
 - PostgreSQL persistence
@@ -27,7 +28,7 @@ http://13.49.49.151:8000/
 - SQLAlchemy (Async)
 - Docker & Docker Compose
 - Jinja2 Templates
-
+- QRCode (Python)
 
 ## Project Structure
 
@@ -41,6 +42,8 @@ app/
 │   └── unused_key.py
 ├── main.py
 templates/
+static/ 
+└── qr/
 docker-compose.yml
 Dockerfile
 requirements.txt
@@ -72,6 +75,5 @@ Contributions are welcome. Please open issues or pull requests for bug fixes and
 * Click tracking
 * Rate limiting
 * User authentication
-* QR code generation
 * Distributed key generation service
 * Monitoring and observability

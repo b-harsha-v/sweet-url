@@ -1,11 +1,13 @@
 import os
 import re
+import qrcode
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.templating import Jinja2Templates
 
 
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone, timedelta
@@ -42,6 +44,8 @@ app = FastAPI(
     version="1.1.0",
     lifespan=lifespan
 )
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -111,11 +115,22 @@ async def shorten_url(request: URLRequest, db: AsyncSession = Depends(get_db)):
     
     # Grab the base URL from the environment, but default to localhost for local testing
     base_url = os.getenv("BASE_URL", "http://localhost:8000")
-    
+    short_url_full = f"{base_url}/{short_alias}"
+
+    # Generate QR code
+    qr = qrcode.make(short_url_full)
+
+    # Ensure directory exists
+    os.makedirs("static/qr", exist_ok=True)
+
+    # Save QR image
+    qr_path = f"static/qr/{short_alias}.png"
+    qr.save(qr_path)
     return {
         "short_url": f"{base_url}/{short_alias}",
         "original_url": request.long_url,
-        "expires_at": expires_at
+        "expires_at": expires_at,
+        "qr_code": f"{base_url}/static/qr/{short_alias}.png"
     }
 
 @app.get("/{alias}")
