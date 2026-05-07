@@ -4,7 +4,7 @@ A scalable URL shortening service built with FastAPI, PostgreSQL, Redis, and Doc
 
 ## Live Demo
 
-http://13.49.49.151:8000/
+https://sweet-url.duckdns.org/
 
 
 ## Features

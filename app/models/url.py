@@ -1,11 +1,14 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from datetime import datetime, timezone
 from app.db.database import Base
+from sqlalchemy import ForeignKey
 
 class URLMapping(Base):
     __tablename__ = "url_mappings"
 
     id = Column(Integer, primary_key=True, index=True)
+
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     
     # The short alias (e.g., '15FT0g')
     short_url = Column(String(50), unique=True, index=True, nullable=False)

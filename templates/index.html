@@ -55,67 +55,77 @@
               id="expires_in"
               class="w-full px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none transition appearance-none"
             >
-              <option value="">Never</option>
               <option value="1">1 Hour</option>
               <option value="24">24 Hours</option>
               <option value="168">7 Days</option>
             </select>
           </div>
         </div>
-
+        <p id="loginWarning" class="hidden text-yellow-400 text-sm">
+          Please sign in with Google to shorten URLs.
+        </p>
         <button
           type="submit"
           class="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transform transition hover:-translate-y-0.5"
         >
           Shorten URL
         </button>
+        <a
+          id="googleLoginBtn"
+          href="/auth/google/login"
+          class="block text-center w-full bg-white text-black font-semibold py-3 px-4 rounded-lg shadow-lg transition hover:bg-gray-200"
+        >
+          Continue with Google
+        </a>
+
+        <div
+          id="userInfo"
+          class="hidden text-center text-green-400 text-sm font-medium"
+        ></div>
       </form>
 
       <div
-  id="resultBox"
-  class="mt-8 hidden p-6 bg-gray-900 rounded-xl border border-green-500/30"
->
-  <p class="text-sm text-green-400 font-semibold mb-4">
-    Success! Your short URL has been created.
-  </p>
-
-  <!-- Short URL -->
-  <div class="mb-5">
-    <p class="text-xs uppercase tracking-wide text-gray-400 mb-2">
-      Short URL
-    </p>
-
-    <div
-      class="flex items-center justify-between bg-gray-800 px-4 py-3 rounded-lg"
-    >
-      <a
-        id="shortLink"
-        href="#"
-        target="_blank"
-        class="text-blue-400 hover:text-blue-300 font-mono truncate"
+        id="resultBox"
+        class="mt-8 hidden p-6 bg-gray-900 rounded-xl border border-green-500/30"
       >
-      </a>
-    </div>
-  </div>
+        <p class="text-sm text-green-400 font-semibold mb-4">
+          Success! Your short URL has been created.
+        </p>
 
-  <!-- QR Section -->
-  <div class="flex flex-col items-center">
-    <p class="text-xs uppercase tracking-wide text-gray-400 mb-3">
-      QR Code
-    </p>
+        <!-- Short URL -->
+        <div class="mb-5">
+          <p class="text-xs uppercase tracking-wide text-gray-400 mb-2">
+            Short URL
+          </p>
 
-    <div class="bg-white p-4 rounded-xl shadow-lg">
-      <img
-        id="qrImage"
-        class="hidden w-44 h-44"
-      />
-    </div>
+          <div
+            class="flex items-center justify-between bg-gray-800 px-4 py-3 rounded-lg"
+          >
+            <a
+              id="shortLink"
+              href="#"
+              target="_blank"
+              class="text-blue-400 hover:text-blue-300 font-mono truncate"
+            >
+            </a>
+          </div>
+        </div>
 
-    <p class="text-gray-500 text-xs mt-3 text-center">
-      Scan this QR code to open your shortened URL instantly.
-    </p>
-  </div>
-</div>
+        <!-- QR Section -->
+        <div class="flex flex-col items-center">
+          <p class="text-xs uppercase tracking-wide text-gray-400 mb-3">
+            QR Code
+          </p>
+
+          <div class="bg-white p-4 rounded-xl shadow-lg">
+            <img id="qrImage" class="hidden w-44 h-44" />
+          </div>
+
+          <p class="text-gray-500 text-xs mt-3 text-center">
+            Scan this QR code to open your shortened URL instantly.
+          </p>
+        </div>
+      </div>
 
       <div
         id="errorBox"
@@ -124,10 +134,51 @@
     </div>
 
     <script>
+      const googleBtn = document.getElementById("googleLoginBtn");
+
+      const loginWarning = document.getElementById("loginWarning");
+
+      let isAuthenticated = false;
+      async function checkAuth() {
+        try {
+          const response = await fetch("/me");
+
+          if (response.ok) {
+            isAuthenticated = true;
+
+            googleBtn.classList.add("hidden");
+
+            const data = await response.json();
+
+            const userInfo = document.getElementById("userInfo");
+
+            userInfo.classList.remove("hidden");
+
+            userInfo.textContent = `Signed in as ${data.email}`;
+
+            loginWarning.classList.add("hidden");
+          } else {
+            isAuthenticated = false;
+
+            loginWarning.classList.remove("hidden");
+          }
+        } catch {
+          isAuthenticated = false;
+
+          loginWarning.classList.remove("hidden");
+        }
+      }
+
+      checkAuth();
       document
         .getElementById("shortenForm")
         .addEventListener("submit", async (e) => {
           e.preventDefault();
+          if (!isAuthenticated) {
+            loginWarning.classList.remove("hidden");
+
+            return;
+          }
 
           const longUrl = document.getElementById("long_url").value;
           const customAlias = document.getElementById("custom_alias").value;
