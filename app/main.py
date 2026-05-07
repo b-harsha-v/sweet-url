@@ -1,4 +1,5 @@
 import os
+import re
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.templating import Jinja2Templates
 
@@ -58,11 +59,27 @@ async def shorten_url(request: URLRequest, db: AsyncSession = Depends(get_db)):
 
     # --- 2. CUSTOM ALIAS LOGIC ---
     if request.custom_alias:
-        # Check if the alias is already taken
-        result = await db.execute(select(URLMapping).where(URLMapping.short_url == request.custom_alias))
+        # sanitize custom alias
+        short_alias = request.custom_alias.strip()
+        short_alias = short_alias.replace(" ", "-")
+        short_alias = re.sub(r"[^a-zA-Z0-9_-]", "", short_alias)
+        short_alias = short_alias.lower()
+
+        if not short_alias:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid custom alias."
+            )
+        # Check if alias already exists
+        result = await db.execute(
+            select(URLMapping).where(URLMapping.short_url == short_alias)
+        )
+
         if result.scalar_one_or_none():
-            raise HTTPException(status_code=400, detail="Custom alias is already taken.")
-        short_alias = request.custom_alias
+            raise HTTPException(
+                status_code=400,
+                detail="Custom alias is already taken."
+            )
     else:
         # Standard KGS Logic
         stmt = select(UnusedKey).with_for_update(skip_locked=True).limit(1)
