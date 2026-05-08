@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <link rel="icon" href="/static/favicon.ico" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sweet URL | Enterprise Shortener</title>
@@ -162,6 +163,22 @@
             >
               Continue with Google
             </a>
+
+            <a
+              id="dashboardBtn"
+              href="/dashboard"
+              class="hidden block text-center w-full bg-gray-800 hover:bg-gray-700 text-white font-semibold py-4 px-4 rounded-xl transition"
+            >
+              Open Dashboard
+            </a>
+
+            <a
+              id="logoutBtn"
+              href="/logout"
+              class="hidden block text-center w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-4 rounded-xl transition"
+            >
+              Logout
+            </a>
           </div>
         </form>
 
@@ -177,9 +194,7 @@
               ✓
             </div>
 
-            <p class="text-green-400 font-semibold">
-              Your short URL is ready.
-            </p>
+            <p class="text-green-400 font-semibold">Your short URL is ready.</p>
           </div>
 
           <!-- Short URL -->
@@ -221,6 +236,13 @@
             <p class="text-gray-500 text-xs mt-4 text-center">
               Scan this QR code to instantly open your shortened link.
             </p>
+
+            <a
+              href="/dashboard"
+              class="mt-6 inline-block text-blue-400 hover:text-blue-300 font-semibold"
+            >
+              View analytics →
+            </a>
           </div>
         </div>
 
@@ -253,6 +275,10 @@
 
             googleBtn.classList.add("hidden");
             loginWarning.classList.add("hidden");
+
+            document.getElementById("dashboardBtn").classList.remove("hidden");
+
+            document.getElementById("logoutBtn").classList.remove("hidden");
 
             submitBtn.disabled = false;
 
@@ -290,7 +316,9 @@
           submitBtn.textContent = "Creating...";
 
           const longUrl = document.getElementById("long_url").value;
+
           const customAlias = document.getElementById("custom_alias").value;
+
           const expiresIn = document.getElementById("expires_in").value;
 
           const payload = {
@@ -308,9 +336,11 @@
           try {
             const response = await fetch("/api/v1/shorten", {
               method: "POST",
+
               headers: {
                 "Content-Type": "application/json",
               },
+
               body: JSON.stringify(payload),
             });
 
@@ -321,12 +351,14 @@
             }
 
             const linkElement = document.getElementById("shortLink");
+
             const qrImage = document.getElementById("qrImage");
 
             linkElement.href = data.short_url;
             linkElement.textContent = data.short_url;
 
             qrImage.src = data.qr_code;
+
             qrImage.classList.remove("hidden");
 
             resultBox.classList.remove("hidden");
@@ -338,9 +370,11 @@
             resultBox.classList.add("hidden");
 
             errorBox.classList.remove("hidden");
+
             errorBox.textContent = error.message;
           } finally {
             submitBtn.disabled = false;
+
             submitBtn.textContent = "Shorten URL";
           }
         });

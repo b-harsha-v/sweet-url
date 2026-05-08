@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, String, DateTime
 from datetime import datetime, timezone
 from app.db.database import Base
 from sqlalchemy import ForeignKey
+from sqlalchemy import DateTime
+from datetime import datetime
 
 class URLMapping(Base):
     __tablename__ = "url_mappings"
@@ -20,3 +22,9 @@ class URLMapping(Base):
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     # NEW: When it expires (nullable because some links might be permanent)
     expires_at = Column(DateTime(timezone=True), nullable=True)
+    clicks = Column(Integer, default=0)
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )

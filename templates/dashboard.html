@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Dashboard | Sweet URL</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-gray-950 text-white min-h-screen p-6">
+    <div class="max-w-7xl mx-auto">
+      <!-- HEADER -->
+
+      <div
+        class="flex flex-col md:flex-row md:items-center md:justify-between gap-5 mb-10"
+      >
+        <div>
+          <h1 class="text-4xl font-black">Dashboard</h1>
+
+          <p class="text-gray-400 mt-2">Welcome back, {{ user.email }}</p>
+        </div>
+
+        <a
+          href="/"
+          class="px-5 py-3 rounded-xl bg-gray-800 hover:bg-gray-700 transition"
+        >
+          Create New URL
+        </a>
+      </div>
+
+      <!-- EMPTY STATE -->
+
+      {% if not urls %}
+
+      <div
+        class="bg-gray-900 border border-gray-800 rounded-3xl p-14 text-center"
+      >
+        <h2 class="text-3xl font-bold mb-4">No URLs Yet</h2>
+
+        <p class="text-gray-400 mb-8">Create your first shortened link.</p>
+
+        <a
+          href="/"
+          class="inline-block px-6 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 transition font-semibold"
+        >
+          Create URL
+        </a>
+      </div>
+
+      {% else %}
+
+      <!-- URL GRID -->
+
+      <div class="grid gap-6">
+        {% for url in urls %}
+
+        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-6">
+          <div
+            class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-8"
+          >
+            <!-- LEFT -->
+
+            <div class="flex-1">
+              <p class="text-xs uppercase tracking-widest text-gray-500 mb-3">
+                Short URL
+              </p>
+
+              <div class="flex flex-wrap items-center gap-3">
+                <a
+                  href="/{{ url.short_url }}"
+                  target="_blank"
+                  class="text-blue-400 hover:text-blue-300 font-mono text-lg break-all"
+                >
+                  {{ request.base_url }}{{ url.short_url }}
+                </a>
+
+                <button
+                  onclick="copyLink('{{ request.base_url }}{{ url.short_url }}')"
+                  class="px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 transition text-sm"
+                >
+                  Copy
+                </button>
+              </div>
+
+              <p class="text-gray-500 mt-5 break-all">{{ url.original_url }}</p>
+            </div>
+
+            <!-- RIGHT -->
+
+            <div class="flex flex-wrap gap-8">
+              <!-- CLICKS -->
+
+              <div>
+                <p class="text-gray-500 text-sm mb-1">Clicks</p>
+
+                <p class="text-3xl font-black">{{ url.clicks }}</p>
+              </div>
+
+              <!-- CREATED -->
+
+              <div>
+                <p class="text-gray-500 text-sm mb-1">Created</p>
+
+                <p class="font-semibold">
+                  {{ url.created_at.strftime('%d %b %Y') }}
+                </p>
+              </div>
+
+              <!-- EXPIRATION -->
+
+              <div>
+                <p class="text-gray-500 text-sm mb-1">Expiration</p>
+
+                <p class="font-semibold">
+                  {% if url.expires_at %}
+
+                  <span
+                    class="local-time"
+                    data-time="{{ url.expires_at.isoformat() }}"
+                  >
+                  </span>
+
+                  {% else %} Never {% endif %}
+                </p>
+              </div>
+              <!-- DELETE -->
+
+              <div>
+                <form action="/delete/{{ url.id }}" method="post">
+                  <button
+                    class="px-5 py-3 rounded-xl bg-red-600 hover:bg-red-700 transition font-semibold"
+                  >
+                    Delete
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {% endfor %}
+      </div>
+
+      {% endif %}
+    </div>
+
+    <script>
+      async function copyLink(link) {
+        await navigator.clipboard.writeText(link);
+
+        alert("Copied!");
+      }
+    </script>
+
+    <script>
+      document.querySelectorAll(".local-time").forEach((element) => {
+        const utcTime = element.dataset.time;
+
+        if (!utcTime) return;
+
+        const localDate = new Date(utcTime);
+
+        element.textContent = localDate.toLocaleString([], {
+          dateStyle: "medium",
+          timeStyle: "short",
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -109,3 +109,13 @@ async def get_me(
     return {
         "email": current_user.email
     }
+
+@router.get("/logout")
+async def logout(request: Request):
+
+    request.session.clear()
+
+    return RedirectResponse(
+        url="/",
+        status_code=302
+    )

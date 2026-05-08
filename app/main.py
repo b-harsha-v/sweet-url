@@ -7,6 +7,7 @@ from app.db.database import engine, Base
 from app.routes.url_routes import router as url_router
 from app.routes.auth_routes import router as auth_router
 from dotenv import load_dotenv
+from app.routes.dashboard_routes import router as dashboard_router
 
 load_dotenv()
 
@@ -30,7 +31,9 @@ app = FastAPI(
 app.add_middleware(SessionMiddleware, secret_key="super-secret-session-key")
 
 app.include_router(auth_router)
+app.include_router(dashboard_router)
 app.include_router(url_router)
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")

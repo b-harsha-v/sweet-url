@@ -46,6 +46,18 @@ async def redirect_to_url(
 
     if cached_url:
 
+        result = await db.execute(
+            select(URLMapping).where(
+                URLMapping.short_url == alias
+            )
+        )
+
+        db_url = result.scalar_one_or_none()
+
+        if db_url:
+            db_url.clicks += 1
+            await db.commit()
+
         return RedirectResponse(
             url=cached_url
         )
@@ -78,6 +90,11 @@ async def redirect_to_url(
             status_code=410,
             detail="URL expired"
         )
+
+    # TRACK CLICKS
+    db_url.clicks += 1
+
+    await db.commit()
 
     # CACHE WARM
     await cache.set(
